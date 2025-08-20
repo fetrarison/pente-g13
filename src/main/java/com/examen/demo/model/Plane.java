@@ -5,6 +5,9 @@ import com.examen.demo.geom.Point3D;
 import com.examen.demo.geom.Vec3;
 import com.examen.demo.io.CsvPointReader;
 import com.examen.demo.metrics.PlaneMetrics;
+
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -21,6 +24,30 @@ public class Plane {
     this.c = c / n;
     this.d = d / n;
   }
+
+  public static List<Point3D> generateTestPlane() {
+    List<Point3D> cloud = new ArrayList<>();
+    Random r = new Random(0);
+
+    // Plan z = 2*x + 3*y + 5
+    for (int i = 0; i < 100; i++) {
+      double x = i * 0.1;
+      double y = i * 0.1;
+      double z = 2 * x + 3 * y + 5 + r.nextGaussian() * 0.01; // léger bruit
+      cloud.add(new Point3D(x, y, z));
+    }
+
+    // Ajouter quelques outliers
+    for (int i = 0; i < 5; i++) {
+      double x = r.nextDouble() * 10;
+      double y = r.nextDouble() * 10;
+      double z = r.nextDouble() * 50 + 50;
+      cloud.add(new Point3D(x, y, z));
+    }
+
+    return cloud;
+  }
+
 
   public Vec3 normal() {
     return new Vec3(a, b, c);
@@ -40,45 +67,42 @@ public class Plane {
   }
 
   public static void main(String[] args) {
-    List<Point3D> cloud;
+    // Charger le nuage de points : test avec plan synthétique
+    List<Point3D> cloud = generateTestPlane();
+    System.out.println("Points de test générés : " + cloud.size());
 
-    if (args.length >= 1) {
-      cloud = CsvPointReader.readCsvPoints(args[0]);
-      System.out.println("Points chargés depuis " + args[0] + " : " + cloud.size());
-    } else {
-      cloud = generateSynthetic(); // fallback
-      System.out.println("Points synthétiques générés : " + cloud.size());
-    }
-
+    // Paramètres RANSAC
     int iterations = 2000;
     double inlierThreshold = 0.05;
     int minInliersForAccept = Math.min(8, cloud.size());
 
+    // Détection du plan dominant
     RansacPlaneFitter fitter = new RansacPlaneFitter();
     RansacPlaneFitter.RansacResult res =
-        fitter.findDominantPlane(cloud, iterations, inlierThreshold, minInliersForAccept);
+            fitter.findDominantPlane(cloud, iterations, inlierThreshold, minInliersForAccept);
+
+    // Affichage des résultats
     printResult(res);
 
-    // Option : second plan
-    List<Point3D> remaining = new ArrayList<>(cloud);
-    remaining.removeAll(res.inliers);
-    if (remaining.size() >= 3) {
-      try {
-        RansacPlaneFitter.RansacResult res2 =
-            fitter.findDominantPlane(
-                remaining, iterations, inlierThreshold, Math.min(8, remaining.size()));
-        System.out.println("\nSecond plan détecté :");
-        printResult(res2);
-      } catch (RuntimeException ignore) {
+    // Export CSV
+    try (PrintWriter out = new PrintWriter("points.csv")) {
+      for (Point3D p : cloud) {
+        out.println(p.x + "," + p.y + "," + p.z);
       }
+    } catch (FileNotFoundException e) {
+      throw new RuntimeException(e);
     }
 
-    // Exemple pente locale entre deux points
-    Point3D A = new Point3D(0, 0, 0);
-    Point3D B = new Point3D(5, 0, 0.577 * 5);
-    PlaneMetrics.SlopeSegment seg = PlaneMetrics.slopeBetween(A, B);
-    System.out.println("\nPente locale entre A et B: " + seg);
+    try (PrintWriter out = new PrintWriter("plane1.csv")) {
+      Plane p = res.plane;
+      out.println(p.a + "," + p.b + "," + p.c + "," + p.d);
+    } catch (FileNotFoundException e) {
+      throw new RuntimeException(e);
+    }
+
+    System.out.println("CSV exportés : points.csv, plane1.csv");
   }
+
 
   private static void printResult(RansacPlaneFitter.RansacResult res) {
     Plane best = res.plane;
@@ -94,7 +118,7 @@ public class Plane {
         Locale.US, "Direction max pente (unitaire): [%.4f, %.4f, %.4f]%n", dir.x, dir.y, dir.z);
   }
 
-  private static List<Point3D> generateSynthetic() {
+  public static List<Point3D> generateSynthetic() {
     List<Point3D> cloud = new ArrayList<>();
     Random r = new Random(0);
     for (int i = 0; i < 1000; i++) {

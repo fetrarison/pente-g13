@@ -1,6 +1,5 @@
 package com.examen.demo.geom;
 
-
 public class Point3D {
   public final double x, y, z;
 

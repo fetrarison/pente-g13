@@ -12,7 +12,7 @@ public class PlaneMetrics {
     Vec3 z = new Vec3(0, 0, 1);
     double cos = Math.abs(n.dot(z));
     double angleNZ = Math.toDegrees(Math.acos(clamp(cos, -1.0, 1.0)));
-    return 90.0 - angleNZ; // angle du plan vs XY
+    return angleNZ; // angle entre normale et verticale = inclinaison par rapport à l’horizontale
   }
 
   public static double slopePercent(Plane plane) {
