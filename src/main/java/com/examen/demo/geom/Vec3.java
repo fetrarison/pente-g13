@@ -1,6 +1,5 @@
 package com.examen.demo.geom;
 
-
 public class Vec3 {
   public final double x, y, z;
 

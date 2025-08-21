@@ -19,6 +19,35 @@ public class RansacPlaneFitter {
     }
   }
 
+  public static Plane fitPlane(List<Point3D> points) {
+    if (points.size() < 3) {
+      throw new IllegalArgumentException("Au moins 3 points sont nécessaires pour définir un plan.");
+    }
+
+    Point3D p1 = points.get(0);
+    Point3D p2 = points.get(1);
+    Point3D p3 = points.get(2);
+
+    // Vecteurs
+    double ux = p2.x - p1.x;
+    double uy = p2.y - p1.y;
+    double uz = p2.z - p1.z;
+
+    double vx = p3.x - p1.x;
+    double vy = p3.y - p1.y;
+    double vz = p3.z - p1.z;
+
+    // Produit vectoriel (normale au plan)
+    double a = uy * vz - uz * vy;
+    double b = uz * vx - ux * vz;
+    double c = ux * vy - uy * vx;
+
+    // d = -(a*x0 + b*y0 + c*z0)
+    double d = -(a * p1.x + b * p1.y + c * p1.z);
+
+    return new Plane(a, b, c, d);
+  }
+
   public RansacResult findDominantPlane(
       List<Point3D> points, int iterations, double inlierThreshold, int minInliersForAccept) {
     if (points == null || points.size() < 3)
