@@ -3,9 +3,7 @@ package com.examen.demo.model;
 import com.examen.demo.algorithms.RansacPlaneFitter;
 import com.examen.demo.geom.Point3D;
 import com.examen.demo.geom.Vec3;
-import com.examen.demo.io.CsvPointReader;
 import com.examen.demo.metrics.PlaneMetrics;
-
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -49,8 +47,8 @@ public class Plane {
   }
 
   /**
-   * Calcul de l'inclinaison du plan par rapport à l'axe Z
-   * Inclinaison = angle entre normale du plan et axe Z
+   * Calcul de l'inclinaison du plan par rapport à l'axe Z Inclinaison = angle entre normale du plan
+   * et axe Z
    */
   public double computeInclination() {
     // normale du plan (a, b, -1)
@@ -86,8 +84,8 @@ public class Plane {
   }
 
   public double distanceToPoint(Point3D p) {
-    return Math.abs(a*p.getX() + b*p.getY() + c*p.getZ() + d) /
-            Math.sqrt(a*a + b*b + c*c);
+    return Math.abs(a * p.getX() + b * p.getY() + c * p.getZ() + d)
+        / Math.sqrt(a * a + b * b + c * c);
   }
 
   public static Plane from3Points(Point3D p1, Point3D p2, Point3D p3) {
@@ -112,7 +110,7 @@ public class Plane {
     // Détection du plan dominant
     RansacPlaneFitter fitter = new RansacPlaneFitter();
     RansacPlaneFitter.RansacResult res =
-            fitter.findDominantPlane(cloud, iterations, inlierThreshold, minInliersForAccept);
+        fitter.findDominantPlane(cloud, iterations, inlierThreshold, minInliersForAccept);
 
     // Affichage des résultats
     printResult(res);
@@ -135,7 +133,6 @@ public class Plane {
 
     System.out.println("CSV exportés : points.csv, plane1.csv");
   }
-
 
   private static void printResult(RansacPlaneFitter.RansacResult res) {
     Plane best = res.plane;

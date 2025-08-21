@@ -1,4 +1,4 @@
-package com.examen.demo.endpoint;
+package com.examen.demo.endpoint.rest.controller;
 
 import com.examen.demo.algorithms.RansacPlaneFitter;
 import com.examen.demo.geom.Point3D;

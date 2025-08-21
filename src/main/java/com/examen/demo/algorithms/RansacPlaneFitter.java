@@ -21,7 +21,8 @@ public class RansacPlaneFitter {
 
   public static Plane fitPlane(List<Point3D> points) {
     if (points.size() < 3) {
-      throw new IllegalArgumentException("Au moins 3 points sont nécessaires pour définir un plan.");
+      throw new IllegalArgumentException(
+          "Au moins 3 points sont nécessaires pour définir un plan.");
     }
 
     Point3D p1 = points.get(0);
