@@ -48,6 +48,34 @@ public class Plane {
     return cloud;
   }
 
+  /**
+   * Calcul de l'inclinaison du plan par rapport à l'axe Z
+   * Inclinaison = angle entre normale du plan et axe Z
+   */
+  public double computeInclination() {
+    // normale du plan (a, b, -1)
+    double nx = a;
+    double ny = b;
+    double nz = -1;
+
+    // vecteur de l’axe Z
+    double zx = 0;
+    double zy = 0;
+    double zz = 1;
+
+    // produit scalaire
+    double dot = nx * zx + ny * zy + nz * zz;
+
+    // normes
+    double normN = Math.sqrt(nx * nx + ny * ny + nz * nz);
+    double normZ = Math.sqrt(zx * zx + zy * zy + zz * zz);
+
+    // cos(theta) = (N·Z) / (||N||*||Z||)
+    double cosTheta = dot / (normN * normZ);
+
+    // angle en radians → degrés
+    return Math.toDegrees(Math.acos(cosTheta));
+  }
 
   public Vec3 normal() {
     return new Vec3(a, b, c);
@@ -55,6 +83,11 @@ public class Plane {
 
   public double distance(Point3D p) {
     return Math.abs(a * p.x + b * p.y + c * p.z + d);
+  }
+
+  public double distanceToPoint(Point3D p) {
+    return Math.abs(a*p.getX() + b*p.getY() + c*p.getZ() + d) /
+            Math.sqrt(a*a + b*b + c*c);
   }
 
   public static Plane from3Points(Point3D p1, Point3D p2, Point3D p3) {
